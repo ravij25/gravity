@@ -1,0 +1,130 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPVjTKqtvajR2S4esGyh4eS",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/ravij25/gravity/blob/main/Convection%20UTM%20Co-ordinates%20%20of%20Lat%2C%20Long%20to%20UTMx%20%2C%20UTMY%20using%20Pyproj%20Library\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 2,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Z_KyansywANZ",
+        "outputId": "81e829f1-3db8-4465-9b3d-07f08a628868"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/\n",
+            "Collecting pyproj\n",
+            "  Downloading pyproj-3.5.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (7.7 MB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m7.7/7.7 MB\u001b[0m \u001b[31m51.3 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hRequirement already satisfied: certifi in /usr/local/lib/python3.10/dist-packages (from pyproj) (2022.12.7)\n",
+            "Installing collected packages: pyproj\n",
+            "Successfully installed pyproj-3.5.0\n"
+          ]
+        }
+      ],
+      "source": [
+        "\n",
+        "!pip install pyproj\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import pyproj\n",
+        "\n",
+        "# Load Bouguer gravity anomaly data into a pandas DataFrame\n",
+        "data = pd.read_csv('https://raw.githubusercontent.com/ravij25/gravity/main/kadapa2.csv')\n",
+        "\n",
+        "# Define the input coordinate system (latitude and longitude)\n",
+        "input_crs = pyproj.CRS('EPSG:4326')  # WGS84\n",
+        "\n",
+        "# Define the output coordinate system (UTM)\n",
+        "output_crs = pyproj.CRS('EPSG:32643')  # UTM Zone 43N\n",
+        "\n",
+        "# Create a coordinate transformer\n",
+        "transformer = pyproj.Transformer.from_crs(input_crs, output_crs, always_xy=True)\n",
+        "\n",
+        "# Convert latitude and longitude to UTM x and y\n",
+        "x, y = transformer.transform(data['Long'], data['Lat'])\n",
+        "\n",
+        "# Update the DataFrame with UTM x and y coordinates\n",
+        "data['UTM_X'] = x\n",
+        "data['UTM_Y'] = y\n",
+        "\n",
+        "# Print the updated DataFrame\n",
+        "print(data)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4O1MM7WkwKLh",
+        "outputId": "0a2f466f-f494-4b64-c4c4-ebfaff32e59b"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "           Lat     Long  Bouger anomaly          UTM_X         UTM_Y\n",
+            "0      78.0083  17.0032             4.6 -638829.879587  9.280992e+06\n",
+            "1      78.0250  17.0032             3.0 -637234.379229  9.282011e+06\n",
+            "2      78.0417  17.0032             1.4 -635638.918429  9.283030e+06\n",
+            "3      78.0583  17.0032             0.1 -634053.050438  9.284043e+06\n",
+            "4      78.0750  17.0032            -0.9 -632457.668358  9.285062e+06\n",
+            "...        ...      ...             ...            ...           ...\n",
+            "22743  79.9417  14.0003           -32.5 -484766.280096  9.449262e+06\n",
+            "22744  79.9583  14.0003           -32.4 -483132.590809  9.450182e+06\n",
+            "22745  79.9750  14.0003           -32.6 -481489.102231  9.451107e+06\n",
+            "22746  79.9917  14.0003           -33.4 -479845.655920  9.452032e+06\n",
+            "22747  80.0083  14.0003           -35.1 -478212.092425  9.452952e+06\n",
+            "\n",
+            "[22748 rows x 5 columns]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "data.(head)"
+      ],
+      "metadata": {
+        "id": "l6b_FM_Twc8q"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
